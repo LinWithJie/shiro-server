@@ -1,6 +1,7 @@
 package com.help.shiro.server.shiro;
 
 import org.apache.shiro.mgt.SecurityManager;
+import org.apache.shiro.spring.LifecycleBeanPostProcessor;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.filter.authc.FormAuthenticationFilter;
@@ -41,24 +42,16 @@ public class ShiroConfig {
         shiroFilterFactoryBean.setFilters(filters);
         //拦截器.
         Map<String, String> filterChainDefinitionMap = new LinkedHashMap<String,String>();
-        // 配置不会被拦截的链接 顺序判断
-        filterChainDefinitionMap.put("/static/**", "anon");
         filterChainDefinitionMap.put("/remoteService", "anon");
-        //配置退出 过滤器,其中的具体的退出代码Shiro已经替我们实现了
+        filterChainDefinitionMap.put("/static/**", "anon");
+        filterChainDefinitionMap.put("/js/**", "anon");
+        filterChainDefinitionMap.put("/css/**", "anon");
         filterChainDefinitionMap.put("/logout", "logout");
-        //filterChainDefinitionMap.put("/login", "anon");
-        //<!-- 过滤链定义，从上向下顺序执行，一般将/**放在最为下边 -->:这是一个坑呢，一不小心代码就不好使了;
-        filterChainDefinitionMap.put("/index", "user");
-        //<!-- authc:所有url都必须认证通过才可以访问; anon:所有url都都可以匿名访问-->
         filterChainDefinitionMap.put("/**", "authc");
-        // 如果不设置默认会自动寻找Web工程根目录下的"/login.jsp"页面
-        shiroFilterFactoryBean.setLoginUrl("/login");
-        // 登录成功后要跳转的链接
-        shiroFilterFactoryBean.setSuccessUrl("/index");
-
-        //未授权界面;
-        //shiroFilterFactoryBean.setUnauthorizedUrl("/403");
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
+        shiroFilterFactoryBean.setLoginUrl("/login");
+        shiroFilterFactoryBean.setSuccessUrl("/index");
+        shiroFilterFactoryBean.setUnauthorizedUrl("/403");
         return shiroFilterFactoryBean;
     }
 
@@ -81,7 +74,7 @@ public class ShiroConfig {
         securityManager.setSessionManager(configWebSessionManager());
         //注入记住我管理器;
         securityManager.setRememberMeManager(rememberMeManager());
-
+        securityManager.setCacheManager(cacheManager);
         return securityManager;
     }
 
@@ -130,7 +123,7 @@ public class ShiroConfig {
     @Bean
     public DefaultWebSessionManager configWebSessionManager(){
         DefaultWebSessionManager manager = new DefaultWebSessionManager();
-        manager.setCacheManager(cacheManager);// 加入缓存管理器
+        //manager.setCacheManager(cacheManager);// 加入缓存管理器
         manager.setSessionDAO(sessionDao);// 设置SessionDao
         manager.setDeleteInvalidSessions(true);// 删除过期的session
         manager.setGlobalSessionTimeout(1800000);// 设置全局session超时时间
@@ -140,7 +133,7 @@ public class ShiroConfig {
     }
 
     @Bean
-    public FormAuthenticationFilter formAuthenticationFilter() {
+    public ServerFormAuthenticationFilter formAuthenticationFilter() {
         ServerFormAuthenticationFilter formAuthenticationFilter = new ServerFormAuthenticationFilter();
         return formAuthenticationFilter;
     }
@@ -154,4 +147,6 @@ public class ShiroConfig {
         cookie.setPath("/");
         return cookie;
     }
+
+
 }

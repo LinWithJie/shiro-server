@@ -16,6 +16,7 @@ import java.util.List;
 @Data
 @ToString(exclude = "roles")
 @Entity
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"permission","name","url"}))
 public class Permission implements Serializable {
     private static final long serialVersionUID = -3843846599026241981L;
 

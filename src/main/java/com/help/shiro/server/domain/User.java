@@ -6,6 +6,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -16,6 +17,7 @@ import java.util.List;
 @Entity
 @Data
 @ToString(exclude = "roleList")
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = "idCard"))
 public class User implements Serializable{
     private static final long serialVersionUID = -4425096841816277473L;
 
@@ -25,6 +27,8 @@ public class User implements Serializable{
     private String id;//标识ID--目前默认手机号绑定
 
     private String idCard;//用户身份证
+
+    private String nickname;//用户名称
 
     private double discount;//客户消费折扣
 

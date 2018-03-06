@@ -14,6 +14,8 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.ByteSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.sound.midi.Soundbank;
+
 /**
  * @author created by BangZhuLi
  * @date 2018/1/29  10:05
@@ -34,13 +36,14 @@ public class MyShiroRealm extends AuthorizingRealm {
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
         System.out.println("权限配置-->MyShiroRealm.doGetAuthorizationInfo()");
         SimpleAuthorizationInfo authorizationInfo = new SimpleAuthorizationInfo();
-        User userInfo  = (User) principals.getPrimaryPrincipal();
+        User userInfo  = userService.findById((String)principals.getPrimaryPrincipal());
         for(Role role:userInfo.getRoleList()){
             authorizationInfo.addRole(role.getRole());
             for(Permission p:role.getPermissions()){
                 authorizationInfo.addStringPermission(p.getPermission());
             }
         }
+        System.out.println(authorizationInfo);
         return authorizationInfo;
     }
 

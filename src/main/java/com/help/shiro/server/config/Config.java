@@ -7,6 +7,7 @@ import com.help.shiro.core.remote.RemoteServiceInterface;
 import com.help.shiro.server.service.RemoteService;
 import com.help.shiro.server.shiro.MyRedisSerializer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.freemarker.FreeMarkerProperties;
 import org.springframework.cache.annotation.CachingConfigurerSupport;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,8 +17,10 @@ import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 import org.springframework.web.context.request.RequestContextListener;
+import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
 import java.io.Serializable;
+import java.util.Properties;
 
 /**
  * @author created by BangZhuLi
@@ -62,5 +65,6 @@ public class Config extends CachingConfigurerSupport {
         exporter.setServiceInterface(RemoteServiceInterface.class);
         return exporter;
     }
+
 
 }

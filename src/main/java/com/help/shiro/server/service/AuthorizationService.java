@@ -3,11 +3,10 @@ package com.help.shiro.server.service;
 import com.help.shiro.core.remote.PermissionContext;
 import com.help.shiro.server.dao.PermissionDao;
 import com.help.shiro.server.dao.RoleDao;
-import com.help.shiro.server.dao.UserRepository;
+import com.help.shiro.server.dao.UserDao;
 import com.help.shiro.server.domain.Permission;
 import com.help.shiro.server.domain.Role;
 import com.help.shiro.server.domain.User;
-import org.apache.tomcat.util.http.parser.Authorization;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +26,7 @@ public class AuthorizationService {
     private PermissionDao permissionDao;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserDao userDao;
 
     /**
      * 根据用户Id查找其角色
@@ -35,7 +34,7 @@ public class AuthorizationService {
      * @return
      */
     public PermissionContext findPermissionContext(String userId) {
-        User user = userRepository.findOne(userId);
+        User user = userDao.findOne(userId);
         if(user == null) {
             return null;
         }

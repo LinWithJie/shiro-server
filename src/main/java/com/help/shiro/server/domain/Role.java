@@ -16,12 +16,14 @@ import java.util.List;
 @Data
 @ToString(exclude = "userInfos,permissions")
 @Entity
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = "role"))
 public class Role implements Serializable {
     private static final long serialVersionUID = -6763607950688569217L;
 
     @Id
     @GeneratedValue
     private Integer id; // 编号
+
 
     private String role; // 角色标识程序中判断使用,如"admin",这个是唯一的:
 

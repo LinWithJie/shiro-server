@@ -2,6 +2,7 @@ package com.help.shiro.server.config;
 
 import com.alibaba.druid.support.http.StatViewServlet;
 import com.alibaba.druid.support.http.WebStatFilter;
+import com.help.shiro.server.shiro.ServerFormAuthenticationFilter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -26,11 +27,9 @@ public class DruidConfig {
     }
 
     @Bean
-    public FilterRegistrationBean filterRegistrationBean() {
-        FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean();
-        filterRegistrationBean.setFilter(new WebStatFilter());
-        filterRegistrationBean.addUrlPatterns("/*");
-        filterRegistrationBean.addInitParameter("exclusions", "*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*");
+    public FilterRegistrationBean filterRegistrationBean(ServerFormAuthenticationFilter formAuthenticationFilter) {
+        FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean(formAuthenticationFilter);
+        filterRegistrationBean.setEnabled(false);
         return filterRegistrationBean;
     }
 }

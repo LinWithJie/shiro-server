@@ -2,6 +2,7 @@ server:
   context-path: /user
   port: 9000
 
+
 spring:
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
@@ -13,14 +14,19 @@ spring:
     minIdle: 1
     maxActive: 20
   jpa:
-    show-sql: true
+    show-sql: false
     hibernate:
       ddl-auto: update
   redis:
-      host: 192.168.247.128
+      host: 111.230.182.190
       port: 6379
-  thymeleaf:
-    check-template: false
+  freemarker:
+    check-template-location: false
+    enabled: false
+    prefer-file-system-access: true
+    settings:
+      auto_import: ftl/common/config/top.ftl as _top,ftl/common/config/left.ftl as _left
     cache: false
-    mode: LEGACYHTML5
+
+
 
