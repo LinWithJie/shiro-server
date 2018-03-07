@@ -60,12 +60,9 @@
 				if($.trim(name) == ''){
 					return layer.msg('角色名称不能为空。',so.default),!1;
 				}
-				if(!/^[a-z0-9A-Z]{6}$/.test(type)){
-					return layer.msg('角色类型为6数字字母。',so.default),!1;
-				}
 				<#--loding-->
 				var load = layer.load();
-				$.post('${basePath}/role/addRole',{name:name,type:type},function(result){
+				$.post('${basePath}/role/addRole',{role:name,description:type,avaiable:true},function(result){
 					layer.close(load);
 					if(result && result.status != 200){
 						return layer.msg(result.message,so.default),!1;
@@ -93,7 +90,7 @@
 						<div clss="well">
 					      <div class="form-group">
 					        <input type="text" class="form-control" style="width: 300px;" value="${findContent?default('')}" 
-					        			name="findContent" id="findContent" placeholder="输入角色名称">
+					        			name="findContent" id="findContent" placeholder="输入角色名称(888888,admin,123456)">
 					      </div>
 					     <span class=""> <#--pull-right -->
 				         	<button type="submit" class="btn btn-primary">查询</button>
@@ -158,11 +155,11 @@
 				        <form id="boxRoleForm">
 				          <div class="form-group">
 				            <label for="recipient-name" class="control-label">角色名称:</label>
-				            <input type="text" class="form-control" name="name" id="name" placeholder="请输入角色名称"/>
+				            <input type="text" class="form-control" name="name" id="name" placeholder="请输入角色名称(888888,admin,123456)"/>
 				          </div>
 				          <div class="form-group">
 				            <label for="recipient-name" class="control-label">角色类型:</label>
-				            <input type="text" class="form-control" id="type" name="type"  placeholder="请输入角色类型  [字母 + 数字] 6位">
+				            <input type="text" class="form-control" id="type" name="type"  placeholder="请输入角色描述">
 				          </div>
 				        </form>
 				      </div>

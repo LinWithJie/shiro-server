@@ -7,6 +7,9 @@ import com.help.shiro.server.domain.Permission;
 import com.help.shiro.server.domain.Role;
 import com.help.shiro.server.domain.User;
 import com.help.shiro.server.page.Pagination;
+import com.help.shiro.server.shiro.RedisSessionDao;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,6 +22,7 @@ import javax.persistence.criteria.*;
 import java.util.*;
 
 @Service
+@Slf4j
 @SuppressWarnings("unchecked")
 public class RoleService {
 
@@ -28,11 +32,9 @@ public class RoleService {
 	UserDao userDao;
 	@Autowired
 	PermissionDao permissionDao;
+	@Autowired
+    RedisSessionDao redisSessionDao;
 
-
-	public void deleteById(Integer id) {
-		 roleDao.delete(id);
-	}
 
 
 	public Role save(Role record) {
@@ -83,7 +85,7 @@ public class RoleService {
 			@Override
 			public Predicate toPredicate(Root<Role> root,
 										 CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
-				Path<String> _name = root.get("role");
+				Path<String> _name = root.get("templates/role");
 				Predicate _key = criteriaBuilder.like(_name, "%" + name + "%");
 				return criteriaBuilder.and(_key);
 			}
@@ -106,7 +108,7 @@ public class RoleService {
 		return toTreeData(roles);
 	}
 
-	public static List<Map<String,Object>> toTreeData(List<Role> roles){
+	public List<Map<String,Object>> toTreeData(List<Role> roles){
 		List<Map<String,Object>> resultData = new LinkedList<Map<String,Object>>();
 		for (Role u : roles) {
 			//角色列表
@@ -133,5 +135,116 @@ public class RoleService {
 
 	}
 
-	
+	public Map<String, Object> deleteRoleById(String ids) {
+		Map<String,Object> resultMap = new HashMap<String,Object>();
+		try {
+			int count=0;
+			String resultMsg = "删除成功。";
+			String[] idArray = new String[]{};
+			if(StringUtils.contains(ids, ",")){
+				idArray = ids.split(",");
+			}else{
+				idArray = new String[]{ids};
+			}
+
+			c:for (String idx : idArray) {
+				if(new Integer(1).equals(idx)){
+					resultMsg = "操作成功，But'系统管理员不能删除。";
+					continue c;
+				}else{
+					count+=this.deleteByPrimaryKey(idx);
+				}
+			}
+			resultMap.put("status", 200);
+			resultMap.put("count", count);
+			resultMap.put("resultMsg", resultMsg);
+		} catch (Exception e) {
+			log.info("根据IDS删除用户出现错误，ids：{},错误：{}", ids,e);
+			resultMap.put("status", 500);
+			resultMap.put("message", "删除出现错误，请刷新后再试！");
+		}
+		return resultMap;
+	}
+
+	private int deleteByPrimaryKey(String id) {
+		roleDao.delete(Integer.parseInt(id));
+		return 1;
+	}
+
+    public List<Role> selectRoleByUserId(String id) {
+	    List<User> users = new ArrayList<>();
+	    users.add(userDao.findOne(id));
+	    return roleDao.findByUserInfos(users);
+    }
+
+    public Map<String,Object> addRole2User(String userId, String ids) {
+	    User user = userDao.findOne(userId);
+        Map<String,Object> resultMap = new HashMap<String, Object>();
+        int count = 0;
+        try {
+            //先删除原有的。
+            //userRoleMapper.deleteByUserId(userId);
+            //如果ids,role 的id 有值，那么就添加。没值象征着：把这个用户（userId）所有角色取消。
+            if(StringUtils.isNotBlank(ids)){
+                String[] idArray = null;
+
+                //这里有的人习惯，直接ids.split(",") 都可以，我习惯这么写。清楚明了。
+                if(StringUtils.contains(ids, ",")){
+                    idArray = ids.split(",");
+                }else{
+                    idArray = new String[]{ids};
+                }
+                //添加新的。
+                for (String rid : idArray) {
+                    //这里严谨点可以判断，也可以不判断。这个{@link StringUtils 我是重写了的}
+                    if(StringUtils.isNotBlank(rid)){
+                        user.getRoleList().add(roleDao.findOne(Integer.valueOf(rid)));
+                        count += 1;
+                    }
+                }
+                userDao.save(user);
+            }
+            resultMap.put("status", 200);
+            resultMap.put("message", "操作成功");
+        } catch (Exception e) {
+            resultMap.put("status", 200);
+            resultMap.put("message", "操作失败，请重试！");
+        }
+        //清空用户的权限，迫使再次获取权限的时候，得重新加载
+        //redisSessionDao.delete().clearUserAuthByUserId(userId);
+        resultMap.put("count", count);
+        return resultMap;
+    }
+
+    public Map<String,Object> deleteRoleByUserIds(String userIds) {
+        Map<String,Object> resultMap = new HashMap<String, Object>();
+        try {
+            resultMap.put("userIds", userIds);
+            if(StringUtils.isNotBlank(userIds)){
+                String[] idArray = null;
+
+                //这里有的人习惯，直接ids.split(",") 都可以，我习惯这么写。清楚明了。
+                if(StringUtils.contains(userIds, ",")){
+                    idArray = userIds.split(",");
+                }else{
+                    idArray = new String[]{userIds};
+                }
+                //一个一个删除
+                for (String uid : idArray) {
+                    //这里严谨点可以判断，也可以不判断。这个{@link StringUtils 我是重写了的}
+                    if(StringUtils.isNotBlank(uid)){
+                        User user = userDao.findOne(uid);
+                        user.setRoleList(null);
+                        userDao.save(user);
+                    }
+                }
+            }
+            resultMap.put("status", 200);
+            resultMap.put("message", "操作成功");
+        } catch (Exception e) {
+            resultMap.put("status", 200);
+            resultMap.put("message", "操作失败，请重试！");
+        }
+        return resultMap;
+    }
 }

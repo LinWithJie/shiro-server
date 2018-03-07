@@ -27,7 +27,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		so.init(function(){
 				//初始化全选。
 				so.checkBoxInit('#checkAll','[check=box]');
-				<shiro:hasPermission name="/role/clearRoleByUserIds.shtml">
+				<shiro:hasPermission name="/role/clearRoleByUserIds">
 				//全选
 				so.id('deleteAll').on('click',function(){
 					var checkeds = $('[check=box]:checked');
@@ -42,7 +42,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				});
 				</shiro:hasPermission>
 			});
-			<shiro:hasPermission name="/role/clearRoleByUserIds.shtml">
+			<shiro:hasPermission name="/role/clearRoleByUserIds">
 			<%--根据ID数组清空用户的角色--%>
 			function deleteById(ids){
 				var index = layer.confirm("确定清除这"+ ids.length +"个用户的角色？",function(){
@@ -62,7 +62,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				});
 			}
 			</shiro:hasPermission>
-			<shiro:hasPermission name="/role/addRole2User.shtml">
+			<shiro:hasPermission name="/role/addRole2User">
 			<%--选择角色后保存--%>
 			function selectRole(){
 				var checked = $("#boxRoleForm  :checked");
@@ -74,7 +74,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				var index = layer.confirm("确定操作？",function(){
 					<%--loding--%>
 					var load = layer.load();
-					$.post('<%=basePath%>/role/addRole2User.shtml',{ids:ids.join(','),userId:$('#selectUserId').val()},function(result){
+					$.post('<%=basePath%>/role/addRole2User',{ids:ids.join(','),userId:$('#selectUserId').val()},function(result){
 						layer.close(load);
 						if(result && result.status != 200){
 							return layer.msg(result.message,so.default),!1;
@@ -91,7 +91,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			*/
 			function selectRoleById(id){
 				var load = layer.load();
-				$.post("<%=basePath%>/role/selectRoleByUserId.shtml",{id:id},function(result){
+				$.post("<%=basePath%>/role/selectRoleByUserId",{id:id},function(result){
 					layer.close(load);
 					if(result && result.length){
 						var html =[];
@@ -115,7 +115,10 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					}
 				},'json');
 			}
+
+
 			</shiro:hasPermission>
+
 		</script>
 	</head>
 	<body data-target="#one" data-spy="scroll">
@@ -127,30 +130,30 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				<shiro:hasAnyRoles name='888888,100003'>  
 					<div id="one" class="col-md-2">
 						<ul data-spy="affix" class="nav nav-list nav-tabs nav-stacked bs-docs-sidenav dropdown affix" style="top: 100px; z-index: 100;">
-						 <shiro:hasPermission name="/role/index.shtml">
+						 <shiro:hasPermission name="/role/index">
 						  <li class="">
-						      <a href="<%=basePath%>/role/index.shtml">
+						      <a href="<%=basePath%>/role/index">
 						    	 <i class="glyphicon glyphicon-chevron-right"></i>角色列表
 						      </a>
 						  </li>
 						  </shiro:hasPermission>
-						 <shiro:hasPermission name="/role/allocation.shtml">
+						 <shiro:hasPermission name="/role/allocation">
 						  <li class="active dropdown">
-						      <a href="<%=basePath%>/role/allocation.shtml" title="角色分配（这是个JSP页面）">
+						      <a href="<%=basePath%>/role/allocation" title="角色分配（这是个JSP页面）">
 						    	 <i class="glyphicon glyphicon-chevron-right"></i>角色分配（这是个JSP页面）
 						      </a>
 						  </li>
 						  </shiro:hasPermission>
-						  <shiro:hasPermission name="/permission/index.shtml">
+						  <shiro:hasPermission name="/permission/index">
 						  <li class=" dropdown">
-						      <a href="<%=basePath%>/permission/index.shtml">
+						      <a href="<%=basePath%>/permission/index">
 						    	 <i class="glyphicon glyphicon-chevron-right"></i>权限列表
 						      </a>
 						  </li>
 						  </shiro:hasPermission>
-						  <shiro:hasPermission name="/permission/allocation.shtml">
+						  <shiro:hasPermission name="/permission/allocation">
 						  <li class="  dropdown">
-						      <a href="<%=basePath%>/permission/allocation.shtml">
+						      <a href="<%=basePath%>/permission/allocation">
 						    	 <i class="glyphicon glyphicon-chevron-right"></i>权限分配
 						      </a>
 						  </li>
@@ -180,7 +183,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 						<tr>
 							<th width="5%"><input type="checkbox" id="checkAll"/></th>
 							<th width="10%">用户昵称</th>
-							<th width="10%">Email/帐号</th>
+							<th width="10%">帐号</th>
 							<th width="10%">状态</th>
 							<th width="55%">拥有的角色</th>
 							<th width="10%">操作</th>
@@ -191,11 +194,11 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 									<tr>
 										<td><input value="${it.id}" check='box' type="checkbox" /></td>
 										<td>${it.nickname}</td>
-										<td>${it.email}</td>
-										<td>${it.status==1?'有效':'禁止'}</td>
-										<td roleIds="${it.roleIds}">${it.roleNames}</td>
+										<td>${it.id}</td>
+										<td>${it.state==1?'有效':'禁止'}</td>
+										<td id="roleIds"></td>
 										<td>
-											<shiro:hasPermission name="/role/addRole2User.shtml">
+											<shiro:hasPermission name="/role/addRole2User">
 												<i class="glyphicon glyphicon-share-alt"></i><a href="javascript:selectRoleById(${it.id});">选择角色</a>
 											</shiro:hasPermission>
 										</td>
@@ -244,4 +247,15 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		</div>
 			
 	</body>
+	<script>
+        var roleIds = "";
+        var roleNames = "";
+        <c:forEach items="${it.roleList}" var="role">
+        	roleIds = roleIds + ${role.id} + ' ';
+        	roleNames = roleNames + ${role.role} + ' ';
+        </c:forEach>
+
+        $("#roleIds").attr("roleIds", roleIds);
+        $("#roleIds").html(roleNames);
+	</script>
 </html>

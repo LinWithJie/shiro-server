@@ -16,7 +16,7 @@
 			so.init(function(){
 				//初始化全选。
 				so.checkBoxInit('#checkAll','[check=box]');
-				<@shiro.hasPermission name="/permission/deletePermissionById.shtml">
+				<@shiro.hasPermission name="/permission/deletePermissionById">
 				//全选
 				so.id('deleteAll').on('click',function(){
 					var checkeds = $('[check=box]:checked');
@@ -31,12 +31,12 @@
 				});
 				</@shiro.hasPermission>
 			});
-			<@shiro.hasPermission name="/permission/deletePermissionById.shtml">
+			<@shiro.hasPermission name="/permission/deletePermissionById">
 			<#--根据ID数组删除角色-->
 			function deleteById(ids){
 				var index = layer.confirm("确定这"+ ids.length +"个权限？",function(){
 					var load = layer.load();
-					$.post('${basePath}/permission/deletePermissionById.shtml',{ids:ids.join(',')},function(result){
+					$.post('${basePath}/permission/deletePermissionById',{ids:ids.join(',')},function(result){
 						layer.close(load);
 						if(result && result.status != 200){
 							return layer.msg(result.message,so.default),!0;
@@ -51,7 +51,7 @@
 				});
 			}
 			</@shiro.hasPermission>
-			<@shiro.hasPermission name="/permission/addPermission.shtml">
+			<@shiro.hasPermission name="/permission/addPermission">
 			<#--添加权限-->
 			function addPermission(){
 				var name = $('#name').val(),
@@ -64,7 +64,7 @@
 				}
 				<#--loding-->
 				var load = layer.load();
-				$.post('${basePath}/permission/addPermission.shtml',{name:name,url:url},function(result){
+				$.post('${basePath}/permission/addPermission',{name:name,url:url},function(result){
 					layer.close(load);
 					if(result && result.status != 200){
 						return layer.msg(result.message,so.default),!1;
@@ -96,10 +96,10 @@
 					      </div>
 					     <span class=""> <#--pull-right -->
 				         	<button type="submit" class="btn btn-primary">查询</button>
-				         	<@shiro.hasPermission name="/permission/addPermission.shtml">
+				         	<@shiro.hasPermission name="/permission/addPermission">
 				         		<a class="btn btn-success" onclick="$('#addPermission').modal();">增加权限</a>
 				         	</@shiro.hasPermission>
-				         	<@shiro.hasPermission name="/permission/deletePermissionById.shtml">
+				         	<@shiro.hasPermission name="/permission/deletePermissionById">
 				         		<button type="button" id="deleteAll" class="btn  btn-danger">Delete</button>
 				         	</@shiro.hasPermission>
 				         </span>    
@@ -109,7 +109,7 @@
 						<tr>
 							<th><input type="checkbox" id="checkAll"/></th>
 							<th>权限名称</th>
-							<th>角色类型</th>
+							<th>url</th>
 							<th>操作</th>
 						</tr>
 						<#if page?exists && page.list?size gt 0 >
@@ -119,7 +119,7 @@
 									<td>${it.name?default('-')}</td>
 									<td>${it.url?default('-')}</td>
 									<td>
-										<@shiro.hasPermission name="/permission/deletePermissionById.shtml">
+										<@shiro.hasPermission name="/permission/deletePermissionById">
 											<i class="glyphicon glyphicon-remove"></i><a href="javascript:deleteById([${it.id}]);">删除</a>
 										</@shiro.hasPermission>
 									</td>
@@ -139,7 +139,7 @@
 					</form>
 				</div>
 			</div><#--/row-->
-			<@shiro.hasPermission name="/permission/addPermission.shtml">
+			<@shiro.hasPermission name="/permission/addPermission">
 			<#--弹框-->
 			<div class="modal fade" id="addPermission" tabindex="-1" role="dialog" aria-labelledby="addPermissionLabel">
 			  <div class="modal-dialog" role="document">

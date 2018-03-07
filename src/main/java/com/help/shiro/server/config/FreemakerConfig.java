@@ -23,37 +23,35 @@ public class FreemakerConfig {
     @Autowired
     private FreeMarkerConfigurer freeMarkerConfigurer;
 
-    @Bean
+    /*@Bean
     public InternalResourceViewResolver internalResourceViewResolver1() {
-        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
         InternalResourceViewResolver resourceViewResolver = new InternalResourceViewResolver();
-        resourceViewResolver.setPrefix("views/");
+        resourceViewResolver.setPrefix("classpath:jsp/");
+        resourceViewResolver.setSuffix(".jsp");
+        resourceViewResolver.setViewClass(JstlView.class);
+        resourceViewResolver.setOrder(1);
+        return  resourceViewResolver;
+    }*/
+
+    /*@Bean
+    public InternalResourceViewResolver InternalResourceViewResolver2() {
+        InternalResourceViewResolver resourceViewResolver = new InternalResourceViewResolver();
+        resourceViewResolver.setPrefix("jsp/");
         resourceViewResolver.setSuffix(".jsp");
         resourceViewResolver.setViewClass(InternalResourceView.class);
         resourceViewResolver.setOrder(1);
         return  resourceViewResolver;
-    }
+    }*/
 
-    @Bean
-    public InternalResourceViewResolver InternalResourceViewResolver2() {
-        InternalResourceViewResolver resourceViewResolver = new InternalResourceViewResolver();
-        resourceViewResolver.setPrefix("views/");
-        resourceViewResolver.setSuffix(".jsp");
-        resourceViewResolver.setViewClass(JstlView.class);
-        resourceViewResolver.setOrder(2);
-        return  resourceViewResolver;
-    }
-
-    @Bean
+    /*@Bean
     public FreeMarkerViewResolver freeMarkerViewResolver() {
         FreeMarkerViewResolver resolver = new FreeMarkerViewResolver();
         resolver.setViewClass(FreeMarkerView.class);
         resolver.setContentType("text/html; charset=utf-8");
-        resolver.setCache(true);
         resolver.setSuffix(".ftl");
-        resolver.setOrder(0);
+        resolver.setPrefix("");
         return resolver;
-    }
+    }*/
 
     /*@Bean
     public  FreeMarkerConfigurer freeMarkerConfigurer() {

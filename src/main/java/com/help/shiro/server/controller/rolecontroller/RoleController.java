@@ -6,19 +6,18 @@ import com.help.shiro.server.domain.Role;
 import com.help.shiro.server.domain.User;
 import com.help.shiro.server.page.Pagination;
 import com.help.shiro.server.service.RoleService;
+import com.help.shiro.server.service.UserService;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -30,6 +29,8 @@ public class RoleController extends BaseController {
 	RoleService roleService;
 
 	@Autowired
+	UserService userService;
+	@Autowired
 	UserDao userDao;
 	/**
 	 * 角色列表
@@ -37,8 +38,13 @@ public class RoleController extends BaseController {
 	 */
 	@RequestMapping(value="/index")
 	public ModelAndView index(String findContent, ModelMap modelMap){
-		modelMap.put("findContent", findContent);
-		Pagination roles = roleService.findPage(pageNo,pageSize);
+		//modelMap.put("findContent", findContent);
+		Pagination roles;
+		if (!StringUtils.isEmpty(findContent)) {
+			roles = roleService.findAllByLikeName(findContent,pageNo,pageSize);
+		}else {
+			roles = roleService.findPage(pageNo,pageSize);
+		}
 		return new ModelAndView("ftl/role/index","page",roles);
 	}
 	/**
@@ -56,6 +62,7 @@ public class RoleController extends BaseController {
 		} catch (Exception e) {
 			resultMap.put("status", 500);
 			resultMap.put("message", "添加失败，请刷新后再试！");
+			logger.info(e);
 		}
 		return resultMap;
 	}
@@ -66,15 +73,16 @@ public class RoleController extends BaseController {
 	 */
 	@RequestMapping(value="/deleteRoleById",method= RequestMethod.POST)
 	@ResponseBody
-	public Map<String,Object> deleteRoleById(String id){
+	public Map<String,Object> deleteRoleById(@RequestParam("ids") String id){
 		try {
-			roleService.deleteById(Integer.parseInt(id));
+			roleService.deleteRoleById(id);
 			resultMap.put("status", 200);
 		} catch (Exception e) {
 			resultMap.put("status", 500);
 			resultMap.put("message", "删除失败，请刷新后再试或具有赋予角色！");
+			logger.info(e);
 		}
-		return null;
+		return resultMap;
 	}
 	/**
 	 * 我的权限页面
@@ -94,5 +102,53 @@ public class RoleController extends BaseController {
 		//查询我所有的角色 ---> 权限
 		List<Map<String, Object>> data = roleService.findRolesByUserId((String) SecurityUtils.getSubject().getPrincipal());
 		return data;
+	}
+
+	/**
+	 * 用户角色权限分配
+	 * @param modelMap
+	 * @param pageNo
+	 * @param findContent
+	 * @return
+	 */
+	@RequestMapping(value="/allocation")
+	public ModelAndView allocation(ModelMap modelMap,Integer pageNo,String findContent){
+		modelMap.put("findContent", findContent);
+		Pagination<User> users = userService.findPage(pageNo,pageSize);
+		modelMap.put("page", users);
+		return new ModelAndView("role/allocation");
+	}
+
+	/**
+	 * 根据用户ID查询权限
+	 * @param id
+	 * @return
+	 */
+	@RequestMapping(value="/selectRoleByUserId")
+	@ResponseBody
+	public List<Role> selectRoleByUserId(String id){
+		List<Role> bos = roleService.selectRoleByUserId(id);
+		return bos;
+	}
+	/**
+	 * 操作用户的角色
+	 * @param userId 	用户ID
+	 * @param ids		角色ID，以‘,’间隔
+	 * @return
+	 */
+	@RequestMapping(value="/addRole2User")
+	@ResponseBody
+	public Map<String,Object> addRole2User(String userId,String ids){
+		return roleService.addRole2User(userId,ids);
+	}
+	/**
+	 * 根据用户id清空角色。
+	 * @param userIds	用户ID ，以‘,’间隔
+	 * @return
+	 */
+	@RequestMapping(value="/clearRoleByUserIds")
+	@ResponseBody
+	public Map<String,Object> clearRoleByUserIds(String userIds){
+		return roleService.deleteRoleByUserIds(userIds);
 	}
 }
