@@ -55,16 +55,20 @@
 			<#--添加权限-->
 			function addPermission(){
 				var name = $('#name').val(),
-					url  = $('#url').val();
+					url  = $('#url').val(),
+					permission = $('#permission').val();
 				if($.trim(name) == ''){
-					return layer.msg('权限名称不能为空。',so.default),!1;
+					return layer.msg('权限说明不能为空。',so.default),!1;
 				}
 				if($.trim(url) == ''){
 					return layer.msg('权限Url不能为空。',so.default),!1;
 				}
+                if($.trim(permission) == ''){
+                    return layer.msg('权限不能为空。',so.default),!1;
+                }
 				<#--loding-->
 				var load = layer.load();
-				$.post('${basePath}/permission/addPermission',{name:name,url:url},function(result){
+				$.post('${basePath}/permission/addPermission',{name:name,url:url,permission:permission},function(result){
 					layer.close(load);
 					if(result && result.status != 200){
 						return layer.msg(result.message,so.default),!1;
@@ -108,7 +112,8 @@
 					<table class="table table-bordered">
 						<tr>
 							<th><input type="checkbox" id="checkAll"/></th>
-							<th>权限名称</th>
+							<th>权限说明</th>
+                            <th>权限</th>
 							<th>url</th>
 							<th>操作</th>
 						</tr>
@@ -117,6 +122,7 @@
 								<tr>
 									<td><input value="${it.id}" check='box' type="checkbox" /></td>
 									<td>${it.name?default('-')}</td>
+                                    <td>${it.permission?default('-')}</td>
 									<td>${it.url?default('-')}</td>
 									<td>
 										<@shiro.hasPermission name="/permission/deletePermissionById">
@@ -152,12 +158,16 @@
 			        <form id="boxRoleForm">
 			          <div class="form-group">
 			            <label for="recipient-name" class="control-label">权限名称:</label>
-			            <input type="text" class="form-control" name="name" id="name" placeholder="请输入权限名称"/>
+			            <input type="text" class="form-control" name="name" id="name" placeholder="请输入权限名称(说明)"/>
 			          </div>
 			          <div class="form-group">
-			            <label for="recipient-name" class="control-label">权限URL地址:</label>
-			            <input type="text" class="form-control" id="url" name="url"  placeholder="请输入权限URL地址">
+			            <label for="recipient-name" class="control-label">权限:</label>
+			            <input type="text" class="form-control" id="permission" name="permission"  placeholder="请输入权限（示例  role:add,product:delete）">
 			          </div>
+                        <div class="form-group">
+                            <label for="recipient-name" class="control-label">权限URL地址:</label>
+                            <input type="text" class="form-control" id="url" name="url"  placeholder="请输入权限URL地址">
+                        </div>
 			        </form>
 			      </div>
 			      <div class="modal-footer">

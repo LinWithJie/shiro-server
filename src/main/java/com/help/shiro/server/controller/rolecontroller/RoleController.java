@@ -7,6 +7,8 @@ import com.help.shiro.server.domain.User;
 import com.help.shiro.server.page.Pagination;
 import com.help.shiro.server.service.RoleService;
 import com.help.shiro.server.service.UserService;
+import com.help.shiro.server.vo.UserRoleAllocation;
+import com.help.shiro.server.vo.UserRoleMark;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -114,8 +116,8 @@ public class RoleController extends BaseController {
 	@RequestMapping(value="/allocation")
 	public ModelAndView allocation(ModelMap modelMap,Integer pageNo,String findContent){
 		modelMap.put("findContent", findContent);
-		Pagination<User> users = userService.findPage(pageNo,pageSize);
-		modelMap.put("page", users);
+		Pagination<UserRoleAllocation> userAndRole = userService.findUserAndRole(findContent,pageNo==null?1:pageNo,pageSize);
+		modelMap.put("page", userAndRole);
 		return new ModelAndView("role/allocation");
 	}
 
@@ -126,8 +128,8 @@ public class RoleController extends BaseController {
 	 */
 	@RequestMapping(value="/selectRoleByUserId")
 	@ResponseBody
-	public List<Role> selectRoleByUserId(String id){
-		List<Role> bos = roleService.selectRoleByUserId(id);
+	public List<UserRoleMark> selectRoleByUserId(String id){
+		List<UserRoleMark> bos = roleService.selectRoleByUserId(id);
 		return bos;
 	}
 	/**
@@ -151,4 +153,6 @@ public class RoleController extends BaseController {
 	public Map<String,Object> clearRoleByUserIds(String userIds){
 		return roleService.deleteRoleByUserIds(userIds);
 	}
+
+
 }

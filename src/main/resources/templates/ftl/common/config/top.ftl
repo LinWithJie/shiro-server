@@ -58,12 +58,7 @@
 							</@shiro.hasPermission>
 						</ul>
 					</li>	
-				</@shiro.hasAnyRoles>    
-				<li>
-					<a class="dropdown-toggle" target="_blank" href="http://www.sojson.com/tag_shiro.html" target="_blank">
-						Shiro相关博客<span class="collapsing"></span>
-					</a>
-				</li>
+				</@shiro.hasAnyRoles>
 	          </ul>
 	           <ul class="nav navbar-nav  pull-right" >
 				<li class="dropdown ${(index==10)?string('active','')}" style="color:#fff;">

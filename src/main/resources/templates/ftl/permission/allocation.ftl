@@ -16,7 +16,7 @@
 			so.init(function(){
 				//初始化全选。
 				so.checkBoxInit('#checkAll','[check=box]');
-				<@shiro.hasPermission name="/permission/clearPermissionByRoleIds.shtml">
+				<@shiro.hasPermission name="/permission/clearPermissionByRoleIds">
 				//全选
 				so.id('deleteAll').on('click',function(){
 					var checkeds = $('[check=box]:checked');
@@ -31,12 +31,12 @@
 				});
 				</@shiro.hasPermission>
 			});
-			<@shiro.hasPermission name="/permission/clearPermissionByRoleIds.shtml">
+			<@shiro.hasPermission name="/permission/clearPermissionByRoleIds">
 			<#--根据ID数组清空角色的权限-->
 			function deleteById(ids){
 				var index = layer.confirm("确定清除这"+ ids.length +"个角色的权限？",function(){
 					var load = layer.load();
-					$.post('${basePath}/permission/clearPermissionByRoleIds.shtml',{roleIds:ids.join(',')},function(result){
+					$.post('${basePath}/permission/clearPermissionByRoleIds',{roleIds:ids.join(',')},function(result){
 						layer.close(load);
 						if(result && result.status != 200){
 							return layer.msg(result.message,so.default),!0;
@@ -51,7 +51,7 @@
 				});
 			}
 			</@shiro.hasPermission>
-			<@shiro.hasPermission name="/permission/addPermission2Role.shtml">
+			<@shiro.hasPermission name="/permission/addPermission2Role">
 			<#--选择权限后保存-->
 			function selectPermission(){
 				var checked = $("#boxRoleForm  :checked");
@@ -63,7 +63,7 @@
 				var index = layer.confirm("确定操作？",function(){
 					<#--loding-->
 					var load = layer.load();
-					$.post('${basePath}/permission/addPermission2Role.shtml',{ids:ids.join(','),roleId:$('#selectRoleId').val()},function(result){
+					$.post('${basePath}/permission/addPermission2Role',{ids:ids.join(','),roleId:$('#selectRoleId').val()},function(result){
 						layer.close(load);
 						if(result && result.status != 200){
 							return layer.msg(result.message,so.default),!1;
@@ -80,7 +80,7 @@
 			*/
 			function selectPermissionById(id){
 				var load = layer.load();
-				$.post("${basePath}/permission/selectPermissionById.shtml",{id:id},function(result){
+				$.post("${basePath}/permission/selectPermissionById",{id:id},function(result){
 					layer.close(load);
 					if(result && result.length){
 						var html =[];
@@ -125,11 +125,11 @@
 						<div clss="well">
 					      <div class="form-group">
 					        <input type="text" class="form-control" style="width: 300px;" value="${findContent?default('')}" 
-					        			name="findContent" id="findContent" placeholder="输入角色名称 / 角色类型">
+					        			name="findContent" id="findContent" placeholder="输入角色名称">
 					      </div>
 					     <span class=""> <#--pull-right -->
 				         	<button type="submit" class="btn btn-primary">查询</button>
-				         	<@shiro.hasPermission name="/permission/clearPermissionByRoleIds.shtml">
+				         	<@shiro.hasPermission name="/permission/clearPermissionByRoleIds">
 				         		<button type="button" id="deleteAll" class="btn  btn-danger">清空角色权限</button>
 				         	</@shiro.hasPermission>
 				         </span>    
@@ -139,8 +139,8 @@
 						<input type="hidden" id="selectRoleId">
 						<tr>
 							<th width="5%"><input type="checkbox" id="checkAll"/></th>
-							<th width="10%">角色名称</th>
-							<th width="10%">角色类型</th>
+							<th width="10%">角色描述</th>
+							<th width="10%">角色</th>
 							<th width="60%">拥有的权限</th>
 							<th width="15%">操作</th>
 						</tr>
@@ -150,9 +150,9 @@
 									<td><input value="${it.id}" check='box' type="checkbox" /></td>
 									<td>${it.name}</td>
 									<td>${it.type}</td>
-									<td permissionIds="${it.permissionIds?default('')}">${it.permissionNames?default('-')}</td>
+									<td permissionIds="${it.permissionIds?default('')}" style="word-break: break-all" 　>${it.permissionNames?default('-')}</td>
 									<td>
-										<@shiro.hasPermission name="/permission/addPermission2Role.shtml">
+										<@shiro.hasPermission name="/permission/addPermission2Role">
 											<i class="glyphicon glyphicon-share-alt"></i><a href="javascript:selectPermissionById(${it.id});">选择权限</a>
 										</@shiro.hasPermission>
 									</td>

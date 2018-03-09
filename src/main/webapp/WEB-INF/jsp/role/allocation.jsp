@@ -104,9 +104,9 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 								html.push(" checked='checked'");
 							}
 							html.push("name='");
-							html.push(this.name);
+							html.push(this.role);
 							html.push("'/>");
-							html.push(this.name);
+							html.push(this.role);
 							html.push('</label></div>');
 						});
 						return so.id('boxRoleForm').html(html.join('')) & $('#selectRole').modal(),$('#selectUserId').val(id),!1;
@@ -168,11 +168,11 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 						<div clss="well">
 					      <div class="form-group">
 					        <input type="text" class="form-control" style="width: 300px;" value="${findContent}" 
-					        			name="findContent" id="findContent" placeholder="输入用户昵称 / 用户帐号">
+					        			name="findContent" id="findContent" placeholder="输入用户昵称">
 					      </div>
 					     <span class=""> <%--pull-right --%>
 				         	<button type="submit" class="btn btn-primary">查询</button>
-				         	<shiro:hasPermission name="/role/clearRoleByUserIds.shtml">
+				         	<shiro:hasPermission name="/role/clearRoleByUserIds">
 				         		<button type="button" id="deleteAll" class="btn  btn-danger">清空用户角色</button>
 			         		</shiro:hasPermission>
 				         </span>    
@@ -196,7 +196,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 										<td>${it.nickname}</td>
 										<td>${it.id}</td>
 										<td>${it.state==1?'有效':'禁止'}</td>
-										<td id="roleIds"></td>
+										<td roleIds="${it.roleIds}">${it.roleNames}</td>
 										<td>
 											<shiro:hasPermission name="/role/addRole2User">
 												<i class="glyphicon glyphicon-share-alt"></i><a href="javascript:selectRoleById(${it.id});">选择角色</a>
@@ -247,15 +247,5 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		</div>
 			
 	</body>
-	<script>
-        var roleIds = "";
-        var roleNames = "";
-        <c:forEach items="${it.roleList}" var="role">
-        	roleIds = roleIds + ${role.id} + ' ';
-        	roleNames = roleNames + ${role.role} + ' ';
-        </c:forEach>
 
-        $("#roleIds").attr("roleIds", roleIds);
-        $("#roleIds").html(roleNames);
-	</script>
 </html>

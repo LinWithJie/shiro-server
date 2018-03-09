@@ -8,8 +8,12 @@ import com.help.shiro.server.domain.Role;
 import com.help.shiro.server.domain.User;
 import com.help.shiro.server.page.Pagination;
 import com.help.shiro.server.shiro.RedisSessionDao;
+import com.help.shiro.server.vo.RolePermissionAllocation;
+import com.help.shiro.server.vo.UserRoleAllocation;
+import com.help.shiro.server.vo.UserRoleMark;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -85,7 +89,7 @@ public class RoleService {
 			@Override
 			public Predicate toPredicate(Root<Role> root,
 										 CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
-				Path<String> _name = root.get("templates/role");
+				Path<String> _name = root.get("role");
 				Predicate _key = criteriaBuilder.like(_name, "%" + name + "%");
 				return criteriaBuilder.and(_key);
 			}
@@ -166,15 +170,35 @@ public class RoleService {
 		return resultMap;
 	}
 
-	private int deleteByPrimaryKey(String id) {
-		roleDao.delete(Integer.parseInt(id));
-		return 1;
+		private int deleteByPrimaryKey(String id) {
+			if (!"1".equals(id)) {
+				roleDao.delete(Integer.parseInt(id));
+			}
+			return 1;
 	}
 
-    public List<Role> selectRoleByUserId(String id) {
+    public List<UserRoleMark> selectRoleByUserId(String id) {
 	    List<User> users = new ArrayList<>();
 	    users.add(userDao.findOne(id));
-	    return roleDao.findByUserInfos(users);
+	    List<Role> roles = roleDao.findByUserInfos(users);
+	    List<UserRoleMark> roleMarks = new ArrayList<>();
+	    roles.forEach(role -> {
+            UserRoleMark roleMark = new UserRoleMark();
+            BeanUtils.copyProperties(role, roleMark);
+            roleMark.setUserId(id);
+            roleMark.setMarker(id);
+            roleMarks.add(roleMark);
+        });
+        List<Role> allRoles = roleDao.findAll();
+        allRoles.removeAll(roles);
+        allRoles.forEach(role -> {
+            UserRoleMark roleMark = new UserRoleMark();
+            BeanUtils.copyProperties(role, roleMark);
+            roleMark.setUserId(id + "noEquals");
+            roleMark.setMarker(id);
+            roleMarks.add(roleMark);
+        });
+	    return roleMarks;
     }
 
     public Map<String,Object> addRole2User(String userId, String ids) {
@@ -247,4 +271,42 @@ public class RoleService {
         }
         return resultMap;
     }
+
+	public Pagination<RolePermissionAllocation> findRoleAndPermissionPage(
+			String findContent, Integer pageNo, Integer pageSize) {
+		Pagination<Role> page;
+		if (StringUtils.isBlank(findContent)) {
+			page = findPage(pageNo, pageSize);
+		}else {
+			page = findAllByLikeName(findContent,pageNo,pageSize);
+		}
+		Pagination<RolePermissionAllocation> rs = new Pagination<>();
+		List<RolePermissionAllocation> rolePermissionAllocations = new ArrayList<>();
+		page.getList().forEach(role -> {
+			RolePermissionAllocation rolePermissionAllocation = new RolePermissionAllocation();
+			rolePermissionAllocation.setId(role.getId());
+			rolePermissionAllocation.setName(role.getDescription());
+			rolePermissionAllocation.setType(role.getRole());
+			StringBuilder permissionIds = new StringBuilder();
+			StringBuilder permissionNames = new StringBuilder();
+			role.getPermissions().forEach(permission -> {
+				permissionIds.append(permission.getId() + ",");
+				permissionNames.append(permission.getPermission() + ",");
+			});
+			if (permissionIds.indexOf(",") >= 0) {
+				permissionIds.deleteCharAt(permissionIds.length() - 1);
+				permissionNames.deleteCharAt(permissionNames.length() - 1);
+			}
+			rolePermissionAllocation.setPermissionIds(permissionIds.toString());
+			rolePermissionAllocation.setPermissionNames(permissionNames.toString());
+			rolePermissionAllocations.add(rolePermissionAllocation);
+		});
+		rs.setList(rolePermissionAllocations);
+		rs.setPageNo(pageNo);
+		rs.setPageSize(pageSize);
+		rs.setTotalCount(page.getTotalCount());
+		rs.setFilterNo(page.getFilterNo());
+		return rs;
+	}
+
 }

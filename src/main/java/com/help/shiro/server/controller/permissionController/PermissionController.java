@@ -4,6 +4,9 @@ import com.help.shiro.server.controller.BaseController;
 import com.help.shiro.server.domain.Permission;
 import com.help.shiro.server.page.Pagination;
 import com.help.shiro.server.service.PermissionService;
+import com.help.shiro.server.service.RoleService;
+import com.help.shiro.server.vo.RolePermissionAllocation;
+import com.help.shiro.server.vo.RolePermissionMark;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -26,6 +30,9 @@ public class PermissionController extends BaseController {
 	
 	@Autowired
 	PermissionService permissionService;
+
+	@Autowired
+	RoleService roleService;
 	/**
 	 * 权限列表
 	 * @param findContent	查询内容
@@ -51,7 +58,6 @@ public class PermissionController extends BaseController {
 	@ResponseBody
 	public Map<String,Object> addPermission(Permission permission){
 		try {
-		    permission.setPermission(permission.getName());
 			Permission entity = permissionService.save(permission);
 			resultMap.put("status", 200);
 			resultMap.put("entity", entity);
@@ -78,4 +84,48 @@ public class PermissionController extends BaseController {
 		}
 		return resultMap;
 	}
+
+	@RequestMapping(value="/allocation")
+	public ModelAndView allocation(ModelMap modelMap,Integer pageNo,String findContent){
+		modelMap.put("findContent", findContent);
+		Pagination<RolePermissionAllocation> boPage = roleService.findRoleAndPermissionPage(findContent,pageNo==null?1:pageNo,pageSize);
+		modelMap.put("page", boPage);
+		return new ModelAndView("ftl/permission/allocation");
+	}
+
+
+	/**
+	 * 根据角色ID查询权限
+	 * @param id
+	 * @return
+	 */
+	@RequestMapping(value="/selectPermissionById")
+	@ResponseBody
+	public List<RolePermissionMark> selectPermissionById(String id){
+		List<RolePermissionMark> rolePermissionMarks = permissionService.selectPermissionsByRoleId(id);
+		return rolePermissionMarks;
+	}
+
+    /**
+     * 操作角色的权限
+     * @param roleId 	角色ID
+     * @param ids		权限ID，以‘,’间隔
+     * @return
+     */
+    @RequestMapping(value="/addPermission2Role")
+    @ResponseBody
+    public Map<String,Object> addPermission2Role(Integer roleId,String ids){
+        return permissionService.addPermission2Role(roleId,ids);
+    }
+
+    /**
+     * 根据角色id清空权限。
+     * @param roleIds	角色ID ，以‘,’间隔
+     * @return
+     */
+    @RequestMapping(value="/clearPermissionByRoleIds")
+    @ResponseBody
+    public Map<String,Object> clearPermissionByRoleIds(String roleIds){
+        return permissionService.deleteByRoleIds(roleIds);
+    }
 }

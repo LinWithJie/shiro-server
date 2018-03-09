@@ -7,9 +7,11 @@ import com.help.shiro.server.domain.User;
 import com.help.shiro.server.page.Paginable;
 import com.help.shiro.server.page.Pagination;
 import com.help.shiro.server.shiro.RedisSessionDao;
+import com.help.shiro.server.vo.UserRoleAllocation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.session.Session;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,7 +21,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.*;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -174,5 +178,37 @@ public class UserService {
         return resultMap;
     }
 
-
+    public Pagination<UserRoleAllocation> findUserAndRole(String findContent, Integer pageNo, Integer pageSize) {
+        Pagination<User> page;
+        if (StringUtils.isBlank(findContent)) {
+            page = findPage(pageNo, pageSize);
+        }else {
+            page = findAllByLikeName(findContent,pageNo,pageSize);
+        }
+        Pagination<UserRoleAllocation> rs = new Pagination<>();
+        List<UserRoleAllocation> userRoleAllocationList = new ArrayList<>();
+        page.getList().forEach(u -> {
+            UserRoleAllocation userRoleAllocation = new UserRoleAllocation();
+            BeanUtils.copyProperties(u,userRoleAllocation);
+            StringBuilder roleIds = new StringBuilder();
+            StringBuilder roleNames = new StringBuilder();
+            u.getRoleList().forEach(role -> {
+                roleIds.append(role.getId() + ",");
+                roleNames.append(role.getRole() + ",");
+            });
+            if (roleIds.indexOf(",") >= 0) {
+                roleIds.deleteCharAt(roleIds.length() - 1);
+                roleNames.deleteCharAt(roleNames.length() - 1);
+            }
+            userRoleAllocation.setRoleIds(roleIds.toString());
+            userRoleAllocation.setRoleNames(roleNames.toString());
+            userRoleAllocationList.add(userRoleAllocation);
+        });
+        rs.setList(userRoleAllocationList);
+        rs.setPageNo(pageNo);
+        rs.setPageSize(pageSize);
+        rs.setTotalCount(page.getTotalCount());
+        rs.setFilterNo(page.getFilterNo());
+        return rs;
+    }
 }
