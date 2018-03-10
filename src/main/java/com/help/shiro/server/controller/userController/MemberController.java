@@ -58,7 +58,7 @@ public class MemberController extends BaseController {
      * @param status	1:有效，0:禁止登录
      * @return
      */
-    @RequestMapping(value="forbidUserById",method=RequestMethod.POST)
+    @RequestMapping(value="/forbidUserById",method=RequestMethod.POST)
     @ResponseBody
     public Map<String,Object> forbidUserById(String id,byte status){
         return userService.updateForbidUserById(id,status);

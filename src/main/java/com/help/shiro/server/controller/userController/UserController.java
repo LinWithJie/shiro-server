@@ -140,5 +140,9 @@ public class UserController extends BaseController {
         return resultMap;
     }
 
-
+    @GetMapping("/test")
+    @ResponseBody
+    public String test() {
+        return "dqwdqw";
+    }
 }

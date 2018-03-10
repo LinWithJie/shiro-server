@@ -122,8 +122,8 @@ public class ShiroConfig {
 
     @Bean
     public DefaultWebSessionManager configWebSessionManager(){
-        DefaultWebSessionManager manager = new DefaultWebSessionManager();
-        //manager.setCacheManager(cacheManager);// 加入缓存管理器
+        DefaultWebSessionManager manager = new ShiroSessionManager();
+        manager.setCacheManager(cacheManager);// 加入缓存管理器
         manager.setSessionDAO(sessionDao);// 设置SessionDao
         manager.setDeleteInvalidSessions(true);// 删除过期的session
         manager.setGlobalSessionTimeout(1800000);// 设置全局session超时时间

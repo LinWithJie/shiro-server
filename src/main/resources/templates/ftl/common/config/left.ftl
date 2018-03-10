@@ -27,11 +27,11 @@
 			    	 <i class="glyphicon glyphicon-chevron-right"></i>用户列表
 			      </a>
 			  </li>
-			  <li class="${(index==2)?string('active',' ')} dropdown">
+			  <#--<li class="${(index==2)?string('active',' ')} dropdown">
 			      <a href="${basePath}/member/online">
 			    	 <i class="glyphicon glyphicon-chevron-right"></i>在线用户
 			      </a>
-			  </li>
+			  </li>-->
 			</ul>
 		</div>
 	</@shiro.hasAnyRoles>         

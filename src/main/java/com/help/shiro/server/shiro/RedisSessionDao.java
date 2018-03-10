@@ -9,7 +9,13 @@ import org.apache.shiro.session.mgt.eis.AbstractSessionDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.servlet.mvc.condition.RequestConditionHolder;
 
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
@@ -33,6 +39,7 @@ public class RedisSessionDao extends AbstractSessionDAO {
     private RedisTemplate<Serializable, Object> redisTemplate ;
 
 
+
     @Override
     public Collection<Session> getActiveSessions() {
         return null;
@@ -41,18 +48,23 @@ public class RedisSessionDao extends AbstractSessionDAO {
     @Override // 更新session
     public void update(Session session) throws UnknownSessionException {
 
-        log.debug("===============update================");
+
+        HttpServletRequest request =  ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
+        String url = request.getServletPath();
+        if (url.indexOf("js") >= 0 || url.indexOf("css") >= 0) {
+            return;
+        }
         if (session == null || session.getId() == null) {
             return;
         }
-
+        log.info("===============update================");
         //session.setTimeout(expireTime);
         redisTemplate.opsForValue().set(session.getId(), session, expireTime, TimeUnit.SECONDS);
     }
 
     @Override // 删除session
     public void delete(Session session) {
-        log.debug("===============delete================");
+        log.info("===============delete================");
         if (null == session) {
             return;
         }
@@ -67,7 +79,7 @@ public class RedisSessionDao extends AbstractSessionDAO {
 
     @Override// 加入session
     protected Serializable doCreate(Session session) {
-        log.debug("===============doCreate================");
+        log.info("===============doCreate================");
         Serializable sessionId = this.generateSessionId(session);
         this.assignSessionId(session, sessionId);
 
@@ -77,10 +89,16 @@ public class RedisSessionDao extends AbstractSessionDAO {
 
     @Override// 读取session
     protected Session doReadSession(Serializable sessionId) {
-        log.debug("==============doReadSession=================");
+
+        HttpServletRequest request =  ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
+        String url = request.getServletPath();
+        if (url.indexOf("js") >= 0 || url.indexOf("css") >= 0) {
+            return null;
+        }
         if (sessionId == null) {
             return null;
         }
+        log.info("==============doReadSession=================");
         return (Session) redisTemplate.opsForValue().get(sessionId);
     }
 }
