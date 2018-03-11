@@ -16,6 +16,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.Map;
 
@@ -130,6 +131,7 @@ public class UserController extends BaseController {
             User user = service.findById((String) SecurityUtils.getSubject().getPrincipal());
             user.setNickname(entity.getNickname());
             service.update(user);
+            SecurityUtils.getSubject().getSession().setAttribute("token", user);
             resultMap.put("status", 200);
             resultMap.put("message", "修改成功!");
         } catch (Exception e) {
