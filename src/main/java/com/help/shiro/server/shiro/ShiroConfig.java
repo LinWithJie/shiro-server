@@ -105,6 +105,7 @@ public class ShiroConfig {
         //<!-- 记住我cookie生效时间30天 ,单位秒;-->
         simpleCookie.setMaxAge(259200);
         simpleCookie.setHttpOnly(true);
+        simpleCookie.setPath("/");
         return simpleCookie;
     }
 
@@ -143,7 +144,6 @@ public class ShiroConfig {
         SimpleCookie cookie = new SimpleCookie("JSESSIONID");
         cookie.setHttpOnly(true);
         cookie.setMaxAge(-1);
-        cookie.setDomain("localhost");
         cookie.setPath("/");
         return cookie;
     }
